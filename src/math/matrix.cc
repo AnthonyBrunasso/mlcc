@@ -39,6 +39,8 @@ struct Matrix {
 
   void operator-=(r32 rhs);
   Matrix operator-(r32 rhs);
+  
+  Matrix Transpose() const;
 
   void DebugPrint();
 
@@ -135,6 +137,16 @@ void Matrix::operator-=(r32 rhs) {
 Matrix Matrix::operator-(r32 rhs) {
   Matrix m(*this);
   m -= rhs;
+  return m;
+}
+
+Matrix Matrix::Transpose() const {
+  Matrix m(cols, rows);
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < cols; ++j) {
+      m.data[m.idx(j, i)] = data[idx(i, j)];
+    }
+  }
   return m;
 }
 

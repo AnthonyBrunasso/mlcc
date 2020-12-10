@@ -20,5 +20,7 @@ int main(int argc, char** argv) {
 
   a.DebugPrint();
 
+  b.Transpose().DebugPrint();
+
   return 0;
 }
