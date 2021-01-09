@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "type.cc"
+#include "util.cc"
 
 namespace mlcc {
 
@@ -42,7 +43,7 @@ struct Matrix {
   
   Matrix Transpose() const;
 
-  void DebugPrint();
+  void DebugPrint() const;
 
   u32 idx(u32 i, u32 j) const;
 
@@ -75,18 +76,7 @@ Matrix::Matrix(u32 m, u32 n, r32* arr) : Matrix(m, n) {
 
 void Matrix::operator*=(const Matrix& rhs) {
   assert(cols == rhs.rows);
-  if (cols != rhs.cols) {
-    *this = Matrix(rows, rhs.cols);
-  }
-  for (int i = 0; i < rows; ++i) {
-    for (int j = 0; j < rhs.cols; ++j) {
-      r32 sum = 0;
-      for (int k = 0; k < cols; ++k) {
-        sum += data[idx(i, k)] * rhs.data[rhs.idx(k, j)];
-      }
-      data[idx(i, j)] = sum;
-    }
-  }
+  *this = *this * rhs;
 }
 
 Matrix Matrix::operator*(const Matrix& rhs) {
@@ -150,7 +140,7 @@ Matrix Matrix::Transpose() const {
   return m;
 }
 
-void Matrix::DebugPrint() {
+void Matrix::DebugPrint() const {
   for (u32 i = 0; i < rows; ++i) {
     for (u32 j = 0; j < cols; ++j) {
       printf("%.3f ", data[idx(i, j)]);

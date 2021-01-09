@@ -44,8 +44,8 @@ void TrainOnce(const std::vector<TrainingInput>& training_input, Weights* w,
     dw1 += CalculatePartial(input.x1, res, input.y);
     dw2 += CalculatePartial(input.x2, res, input.y);
     db += CalculatePartial(w->b, res, input.y);
-    printf("x1=%.2f x2=%.2f w1=%.2f w2=%.2f actual=%.2f predicted=%.2f\n",
-           input.x1, input.x2, w->w1, w->w2, input.y, res);
+    printf("x1=%.2f x2=%.2f w1=%.2f w2=%.2f b=%.2f actual=%.2f predicted=%.2f\n",
+           input.x1, input.x2, w->w1, w->w2, w->b, input.y, res);
   }
   dw1 /= training_input.size();
   dw2 /= training_input.size();
@@ -63,7 +63,8 @@ void TrainOnce(const std::vector<TrainingInput>& training_input, Weights* w,
 }
 
 int main(int argc, char** argv) {
-#if 1
+  srand(time(0));
+#if 0
   std::vector<TrainingInput> and_input {
     {0.0, 0.0, 0.0},
     {1.0, 0.0, 0.0},
@@ -77,7 +78,7 @@ int main(int argc, char** argv) {
   }
 #endif
 
-#if 0
+#if 1
   std::vector<TrainingInput> or_input {
     {0.0, 0.0, 0.0},
     {1.0, 0.0, 1.0},
@@ -90,6 +91,21 @@ int main(int argc, char** argv) {
     TrainOnce(or_input, &or_weights, true);
   }
 #endif
+
+#if 0
+  std::vector<TrainingInput> xor_input {
+    {0.0, 0.0, 0.0},
+    {1.0, 0.0, 1.0},
+    {0.0, 1.0, 1.0},
+    {1.0, 1.0, 0.0},
+  };
+
+  Weights xor_weights = RandomWeights();
+  for (int i = 0; i < 1; ++i) {
+    TrainOnce(xor_input, &xor_weights, true);
+  }
+#endif
+
 
   return 0;
 }
