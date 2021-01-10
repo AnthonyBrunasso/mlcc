@@ -141,6 +141,7 @@ Matrix Matrix::Transpose() const {
 }
 
 void Matrix::DebugPrint() const {
+  printf("Matrix %ix%i\n", rows, cols);
   for (u32 i = 0; i < rows; ++i) {
     for (u32 j = 0; j < cols; ++j) {
       printf("%.3f ", data[idx(i, j)]);
@@ -151,6 +152,16 @@ void Matrix::DebugPrint() const {
 
 u32 Matrix::idx(u32 i, u32 j) const {
   return i * cols + j;
+}
+
+Matrix HadamardProduct(const Matrix& a, const Matrix& b) {
+  assert(a.rows == b.rows);
+  assert(a.cols == b.cols);
+  Matrix r(a.rows, a.cols);
+  for (s32 i = 0; i < a.data.size(); ++i) {
+    r.data[i] = a.data[i] * b.data[i];
+  }
+  return r;
 }
 
 }  // namespace mlcc
