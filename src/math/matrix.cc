@@ -38,8 +38,17 @@ struct Matrix {
   void operator+=(r32 rhs);
   Matrix operator+(r32 rhs);
 
+  void operator+=(const Matrix& rhs);
+  Matrix operator+(const Matrix& rhs);
+
   void operator-=(r32 rhs);
   Matrix operator-(r32 rhs);
+
+  void operator-=(const Matrix& rhs);
+  Matrix operator-(const Matrix& rhs);
+
+  void operator/=(r32 rhs);
+  Matrix operator/(r32 rhs);
   
   Matrix Transpose() const;
 
@@ -118,6 +127,19 @@ Matrix Matrix::operator+(r32 rhs) {
   return m;
 }
 
+void Matrix::operator+=(const Matrix& rhs) {
+  assert(data.size() == rhs.data.size());
+  for (int i = 0; i < data.size(); ++i) {
+    data[i] += rhs.data[i];
+  }
+}
+
+Matrix Matrix::operator+(const Matrix& rhs) {
+  Matrix r(*this);
+  r += rhs;
+  return r;
+}
+
 void Matrix::operator-=(r32 rhs) {
   for (u32 i = 0; i < data.size(); ++i) {
     data[i] -= rhs;
@@ -127,6 +149,31 @@ void Matrix::operator-=(r32 rhs) {
 Matrix Matrix::operator-(r32 rhs) {
   Matrix m(*this);
   m -= rhs;
+  return m;
+}
+
+void Matrix::operator-=(const Matrix& rhs) {
+  assert(data.size() == rhs.data.size());
+  for (int i = 0; i < data.size(); ++i) {
+    data[i] -= rhs.data[i];
+  }
+}
+
+Matrix Matrix::operator-(const Matrix& rhs) {
+  Matrix r(*this);
+  r -= rhs;
+  return r;
+}
+
+void Matrix::operator/=(r32 rhs) {
+  for (u32 i = 0; i < data.size(); ++i) {
+    data[i] /= rhs;
+  }
+}
+
+Matrix Matrix::operator/(r32 rhs) {
+  Matrix m(*this);
+  m /= rhs;
   return m;
 }
 
@@ -157,9 +204,9 @@ u32 Matrix::idx(u32 i, u32 j) const {
 Matrix HadamardProduct(const Matrix& a, const Matrix& b) {
   assert(a.rows == b.rows);
   assert(a.cols == b.cols);
-  Matrix r(a.rows, a.cols);
-  for (s32 i = 0; i < a.data.size(); ++i) {
-    r.data[i] = a.data[i] * b.data[i];
+  Matrix r(a);
+  for (s32 i = 0; i < b.data.size(); ++i) {
+    r.data[i] *= b.data[i];
   }
   return r;
 }

@@ -88,7 +88,7 @@ void NNet::AddLayer(s32 size) {
 
 void NNet::AddLayer(NNLayer layer) {
   if (layers_.size() > weights_.size()) {
-    Matrix matrix(layers_.back().size, layer.size, Matrix::RAND_NEG_1_POS_1);
+    Matrix matrix(layer.size, layers_.back().size, Matrix::RAND_NEG_1_POS_1);
     weights_.push_back(matrix);
   }
   layers_.push_back(layer);
@@ -97,11 +97,11 @@ void NNet::AddLayer(NNLayer layer) {
 Matrix NNet::FeedForward(const Matrix& input) {
   assert(layers_.size() > 0);
   // Input should be a column vector the size of the input.
-  assert(input.cols == layers_[0].size);
+  assert(input.rows == layers_[0].size);
   Matrix acc(input);
   for (int i = 0; i < weights_.size(); ++i) {
     const NNLayer& out_layer = layers_[i + 1];
-    acc *= weights_[i]; 
+    acc = weights_[i] * acc; 
     ApplyActivation(&acc, out_layer);
   }
   return acc;
@@ -111,32 +111,31 @@ void NNet::FeedForward(const Matrix& input, std::vector<Matrix>* pre_activation,
                        std::vector<Matrix>* post_activation) {
   assert(layers_.size() > 0);
   // Input should be a column vector the size of the input.
-  assert(input.cols == layers_[0].size);
+  assert(input.rows == layers_[0].size);
   Matrix acc(input);
+  pre_activation->push_back(input);
   for (s32 i = 0; i < weights_.size(); ++i) {
     const NNLayer& out_layer = layers_[i + 1];
-    acc *= weights_[i]; 
+    //printf("weights_[i]\n");weights_[i].DebugPrint();
+    //printf("acc\n");acc.DebugPrint();
+    acc = weights_[i] * acc; 
     pre_activation->push_back(acc);
     ApplyActivation(&acc, out_layer);
     post_activation->push_back(acc);
   }
 }
 
-void NNet::BackProp(const Matrix& input, const Matrix& y, std::vector<Matrix>* weight_delta) {
+void NNet::BackProp(const Matrix& input, const Matrix& y,
+                    std::vector<Matrix>* weight_delta) {
   std::vector<Matrix> pre_activation, post_activation;
   FeedForward(input, &pre_activation, &post_activation);
   Matrix pre_activation_derivative = pre_activation.back();
   ApplyActivationDerivative(&pre_activation_derivative, layers_.back());
+  printf("POST_ACTIVATION:\n");post_activation.back().DebugString();
   Matrix delta = HadamardProduct(
       CostDerivative(post_activation.back(), y, cost_), pre_activation_derivative);
-  //delta.DebugPrint();
-  //post_activation[post_activation.size() - 2].DebugPrint();
-  // 4x1 * 4x2
-  // 2x4 * 4x1
-  delta.DebugPrint();
-  post_activation[post_activation.size() - 1].DebugPrint();
   weight_delta->push_back(
-      post_activation[post_activation.size() - 1].Transpose() * delta);
+      delta * pre_activation[pre_activation.size() - 2].Transpose());
 #if 0
   weight_delta->push_back(
       post_activation[post_activation.size() - 2].Transpose() * delta);
