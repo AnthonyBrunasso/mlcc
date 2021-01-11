@@ -222,4 +222,15 @@ Matrix HadamardProduct(const Matrix& a, const Matrix& b) {
   return r;
 }
 
+Matrix RowWiseProduct(const Matrix& a, const Matrix& b) {
+  assert(a.cols == b.cols);
+  Matrix res(a);
+  for (s32 r = 0; r < a.rows; ++r) {
+    for (s32 c = 0; c < a.cols; ++c) {
+      res.data[res.idx(r, c)] *= b.data[b.idx(0, c)]; 
+    }
+  }
+  return res;
+}
+
 }  // namespace mlcc

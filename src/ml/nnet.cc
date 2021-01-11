@@ -25,9 +25,14 @@ class NNet {
   void AddLayer(NNLayer layer);
 
   Matrix FeedForward(const Matrix& input);
+
   void FeedForward(const Matrix& input, std::vector<Matrix>* pre_activation,
                    std::vector<Matrix>* post_activation);
-  void BackProp(const Matrix& input, const Matrix& y, std::vector<Matrix>* weight_delta);
+
+  void BackProp(const Matrix& input, const Matrix& y,
+                std::vector<Matrix>* weight_delta);
+
+  void DebugPrint();
 
   std::vector<NNLayer> layer_;
   // weight_[i] associated with layers[i] and layers[i+1].
@@ -144,7 +149,7 @@ void NNet::FeedForward(const Matrix& input, std::vector<Matrix>* pre_activation,
       }
       acc = std::move(new_acc);
     }
-    if (pre_activation->empty()) pre_activation->push_back(acc);
+    if (post_activation->empty()) post_activation->push_back(acc);
     acc = weight_[i] * acc; 
     pre_activation->push_back(acc);
     ApplyActivation(&acc, out_layer);
@@ -165,7 +170,24 @@ void NNet::BackProp(const Matrix& input, const Matrix& y,
   //printf("ACTUA:\n");y.DebugPrint();
   //printf("COSTD\n");CostDerivative(post_activation.back(), y, cost_).DebugPrint();
   weight_delta->push_back(
-      delta * pre_activation[pre_activation.size() - 2].Transpose());
+      delta * pre_activation[post_activation.size() - 2].Transpose());
+  for (s32 i = layer_.size() - 2; i >= 0; --i) {
+    Matrix ad = pre_activation[i];
+    ApplyActivationDerivative(&ad, layer_[i]);
+    //weight_[i].DebugPrint();
+    //printf("delta\n");
+    //delta.DebugPrint();
+    Matrix a = weight_[i].Transpose() * delta;
+    //a.DebugPrint();
+    //ad.DebugPrint();
+    delta = RowWiseProduct(weight_[i].Transpose() * delta, ad);
+    //printf("DELTA:\n");
+    //delta.DebugPrint();
+    //post_activation[i].DebugPrint();
+    //printf("%i5\n", i);
+    weight_delta->push_back(delta * post_activation[i].Transpose());
+    //printf("%i6\n", i);
+  }
 #if 0
   weight_delta->push_back(
       post_activation[post_activation.size() - 2].Transpose() * delta);
@@ -181,6 +203,13 @@ void NNet::BackProp(const Matrix& input, const Matrix& y,
   }
 #endif
   std::reverse(weight_delta->begin(), weight_delta->end());
+}
+
+void NNet::DebugPrint() {
+  for (s32 i = 0; i < weight_.size(); ++i) {
+    printf("Weights[%i]\n", i);
+    weight_[i].DebugPrint();
+  }
 }
 
 }

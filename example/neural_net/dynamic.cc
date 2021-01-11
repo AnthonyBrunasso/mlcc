@@ -1,9 +1,22 @@
 #include "ml/nnet.cc"
 
+// x x
+//     x
+// x x
+//
+// b b   
+
+// 
+
 int main(int argc, char** argv) {
   mlcc::NNet nn;
   nn.AddLayer({
     .size = 2,
+    .use_bias = true
+  });
+  nn.AddLayer({
+    .size = 2,
+    .activation = mlcc::NNLayer::kActivationSigmoid,
     .use_bias = true
   });
   nn.AddLayer({
@@ -14,16 +27,22 @@ int main(int argc, char** argv) {
     0.0f, 1.0f, 0.0f, 1.f,
     0.0f, 0.0f, 1.0f, 1.f
   ));
-  INIT_MATRIX(y, 1, 4, ( 0.f, 0.f, 0.f, 1.f ));
+  INIT_MATRIX(y, 1, 4, ( 0.f, 1.f, 1.f, 1.f ));
   //in.DebugPr
 
 //  nn.FeedForward(in).DebugPrint();
 
+  //nn.DebugPrint();
+
 #if 1
-  for (int i = 0; i < 10000; ++i) { 
+  for (int i = 0; i < 1; ++i) { 
     //printf("1\n");
     std::vector<mlcc::Matrix> weight_delta;
     nn.BackProp(in, y, &weight_delta);
+    for (int j = 0; j < weight_delta.size(); ++j) {
+      printf("WDELTA[%i]\n", j);
+      weight_delta[j].DebugPrint();
+    }
     //printf("2\n");
     //weight_delta[0] /= 4.f;
     //printf("WEIGHTS:\n");nn.weight_[0].DebugPrint();
@@ -31,8 +50,8 @@ int main(int argc, char** argv) {
     //weight_delta[0] *= 0.1f;
     //weight_delta[0].DebugPrint();
     //printf("RESULT:\n");
-    nn.weight_[0] -= weight_delta[0] * 0.1f;
-    nn.FeedForward(in).DebugPrint();
+    //nn.weight_[0] -= weight_delta[0] * 0.1f;
+    //nn.FeedForward(in).DebugPrint();
   }
 #endif
 
