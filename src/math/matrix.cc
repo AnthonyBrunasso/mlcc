@@ -24,6 +24,7 @@ struct Matrix {
 
   Matrix() = default;
   Matrix(u32 m, u32 n);
+  Matrix(u32 m, u32 n, const Matrix& copy);
   Matrix(u32 m, u32 n, InitType init_type);
   Matrix(u32 m, u32 n, r32* arr);
 
@@ -63,6 +64,16 @@ struct Matrix {
 
 Matrix::Matrix(u32 m, u32 n) : rows(m), cols(n) {
   data.resize(m * n, 0.f);
+}
+
+
+Matrix::Matrix(u32 m, u32 n, const Matrix& copy) : Matrix(m, n) {
+  assert(copy.rows <= m && copy.cols <= n);
+  for (s32 i = 0; i < copy.rows; ++i) {
+    for (s32 j = 0; j < copy.cols; ++j) {
+      data[idx(i, j)] = copy.data[idx(i, j)];
+    }
+  }
 }
 
 Matrix::Matrix(u32 m, u32 n, InitType init_type) : Matrix(m, n) {
