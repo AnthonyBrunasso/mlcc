@@ -141,9 +141,18 @@ Matrix Matrix::operator+(r32 rhs) const {
 }
 
 void Matrix::operator+=(const Matrix& rhs) {
-  assert(data.size() == rhs.data.size());
-  for (int i = 0; i < data.size(); ++i) {
-    data[i] += rhs.data[i];
+  if (data.size() == rhs.data.size()) {
+    for (int i = 0; i < data.size(); ++i) {
+      data[i] += rhs.data[i];
+    }
+  } else if (rhs.rows == 1 && rhs.cols == cols) { // Row wise addition.
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        data[idx(i, j)] += rhs.val(0, j);
+      }
+    }
+  } else {
+    assert(!"Dimensions don't work.");
   }
 }
 

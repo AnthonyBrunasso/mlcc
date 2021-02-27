@@ -6,6 +6,15 @@ mlcc::Matrix Predict(const mlcc::Matrix& x, const mlcc::Matrix& w, r32 b) {
   return x * w + b;
 }
 
+mlcc::Matrix Relu(const mlcc::Matrix& x) {
+  mlcc::Matrix m = x;
+  for (u32 i = 0; i < m.data.size(); ++i) {
+    if (m.data[i] > 0.f) continue;
+    else m.data[i] = 0.f;
+  }
+  return m;
+}
+
 r32 MeanSquaredError(const mlcc::Matrix& a, const mlcc::Matrix& b) {
   assert(a.rows == b.rows && a.cols == b.cols && a.cols == 1);
   r32 res = 0.f;
@@ -31,17 +40,19 @@ int main(int argc, char** argv) {
       1.f,
       0.f
   ));
-  INIT_MATRIX(weights, 2, 1, (
-      1.f, 1.f
+  INIT_MATRIX(weights_one, 2, 2, (
+    1.f, 1.f,
+    1.f, 1.f
   ));
-  r32 b = 0.f;
+  INIT_MATRIX(bias, 1, 2, (
+    0.f, -1.f
+  ));
+  INIT_MATRIX(weights_two, 2, 1, (
+    1.f,
+    -2.f
+  ));
 
-  xor_input.DebugPrint();
-  weights.DebugPrint();
-  printf("Predicted Output\n");
-  Predict(xor_input, weights, b).DebugPrint();
-  printf("Actual Output\n");
-  xor_output.DebugPrint();
-  printf("MSE: %.2f\n", MeanSquaredError(xor_output, Predict(xor_input, weights, b)));
+  (Relu((xor_input * weights_one + bias)) * weights_two).DebugPrint();
+
   return 0;
 }
