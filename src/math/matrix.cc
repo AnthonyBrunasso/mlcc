@@ -31,31 +31,33 @@ struct Matrix {
   ~Matrix() = default;
 
   void operator*=(const Matrix& rhs);
-  Matrix operator*(const Matrix& rhs);
+  Matrix operator*(const Matrix& rhs) const;
 
   void operator*=(r32 rhs);
-  Matrix operator*(r32 rhs);
+  Matrix operator*(r32 rhs) const;
 
   void operator+=(r32 rhs);
-  Matrix operator+(r32 rhs);
+  Matrix operator+(r32 rhs) const;
 
   void operator+=(const Matrix& rhs);
-  Matrix operator+(const Matrix& rhs);
+  Matrix operator+(const Matrix& rhs) const;
 
   void operator-=(r32 rhs);
-  Matrix operator-(r32 rhs);
+  Matrix operator-(r32 rhs) const;
 
   void operator-=(const Matrix& rhs);
-  Matrix operator-(const Matrix& rhs);
+  Matrix operator-(const Matrix& rhs) const;
 
   void operator/=(r32 rhs);
-  Matrix operator/(r32 rhs);
-  
+  Matrix operator/(r32 rhs) const;
+
   Matrix Transpose() const;
 
   void DebugPrint() const;
 
   u32 idx(u32 i, u32 j) const;
+
+  r32 val(u32 i, u32 j) const;
 
   std::vector<r32> data;
   u32 rows = 0;
@@ -99,7 +101,7 @@ void Matrix::operator*=(const Matrix& rhs) {
   *this = *this * rhs;
 }
 
-Matrix Matrix::operator*(const Matrix& rhs) {
+Matrix Matrix::operator*(const Matrix& rhs) const {
   assert(cols == rhs.rows);
   Matrix result(rows, rhs.cols);
   for (int i = 0; i < rows; ++i) {
@@ -120,7 +122,7 @@ void Matrix::operator*=(r32 rhs) {
   }
 }
 
-Matrix Matrix::operator*(r32 rhs) {
+Matrix Matrix::operator*(r32 rhs) const {
   Matrix m(*this);
   m *= rhs;
   return m;
@@ -132,7 +134,7 @@ void Matrix::operator+=(r32 rhs) {
   }
 }
 
-Matrix Matrix::operator+(r32 rhs) {
+Matrix Matrix::operator+(r32 rhs) const {
   Matrix m(*this);
   m += rhs;
   return m;
@@ -145,7 +147,7 @@ void Matrix::operator+=(const Matrix& rhs) {
   }
 }
 
-Matrix Matrix::operator+(const Matrix& rhs) {
+Matrix Matrix::operator+(const Matrix& rhs) const {
   Matrix r(*this);
   r += rhs;
   return r;
@@ -157,7 +159,7 @@ void Matrix::operator-=(r32 rhs) {
   }
 }
 
-Matrix Matrix::operator-(r32 rhs) {
+Matrix Matrix::operator-(r32 rhs) const {
   Matrix m(*this);
   m -= rhs;
   return m;
@@ -170,7 +172,7 @@ void Matrix::operator-=(const Matrix& rhs) {
   }
 }
 
-Matrix Matrix::operator-(const Matrix& rhs) {
+Matrix Matrix::operator-(const Matrix& rhs) const {
   Matrix r(*this);
   r -= rhs;
   return r;
@@ -182,7 +184,7 @@ void Matrix::operator/=(r32 rhs) {
   }
 }
 
-Matrix Matrix::operator/(r32 rhs) {
+Matrix Matrix::operator/(r32 rhs) const {
   Matrix m(*this);
   m /= rhs;
   return m;
@@ -212,6 +214,10 @@ u32 Matrix::idx(u32 i, u32 j) const {
   return i * cols + j;
 }
 
+r32 Matrix::val(u32 i, u32 j) const {
+  return data[idx(i, j)];
+}
+
 Matrix HadamardProduct(const Matrix& a, const Matrix& b) {
   assert(a.rows == b.rows);
   assert(a.cols == b.cols);
@@ -227,7 +233,7 @@ Matrix RowWiseProduct(const Matrix& a, const Matrix& b) {
   Matrix res(a);
   for (s32 r = 0; r < a.rows; ++r) {
     for (s32 c = 0; c < a.cols; ++c) {
-      res.data[res.idx(r, c)] *= b.data[b.idx(0, c)]; 
+      res.data[res.idx(r, c)] *= b.data[b.idx(0, c)];
     }
   }
   return res;

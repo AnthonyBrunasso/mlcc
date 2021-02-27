@@ -122,8 +122,6 @@ Matrix NNet::FeedForward(const Matrix& input) {
       }
       acc = std::move(new_acc);
     }
-    //acc.DebugPrint();
-    //weight_[i].DebugPrint();
     acc = weight_[i] * acc; 
     ApplyActivation(&acc, out_layer);
   }
@@ -139,8 +137,6 @@ void NNet::FeedForward(const Matrix& input, std::vector<Matrix>* pre_activation,
   for (s32 i = 0; i < weight_.size(); ++i) {
     const NNLayer& in_layer = layer_[i];
     const NNLayer& out_layer = layer_[i + 1];
-    //printf("weight_[i]\n");weight_[i].DebugPrint();
-    //printf("acc\n");acc.DebugPrint();
     if (in_layer.use_bias) {
       // Add a 1.0 to the input.
       Matrix new_acc(acc.rows + 1, acc.cols, acc);
@@ -163,45 +159,21 @@ void NNet::BackProp(const Matrix& input, const Matrix& y,
   FeedForward(input, &pre_activation, &post_activation);
   Matrix pre_activation_derivative = pre_activation.back();
   ApplyActivationDerivative(&pre_activation_derivative, layer_.back());
-  //printf("POST_ACTIVATION:\n");post_activation.back().DebugString();
   Matrix delta = HadamardProduct(
       CostDerivative(post_activation.back(), y, cost_), pre_activation_derivative);
-  //printf("ACTIV:\n");post_activation.back().DebugPrint();
-  //printf("ACTUA:\n");y.DebugPrint();
-  //printf("COSTD\n");CostDerivative(post_activation.back(), y, cost_).DebugPrint();
   weight_delta->push_back(
       delta * pre_activation[post_activation.size() - 2].Transpose());
   for (s32 i = layer_.size() - 2; i >= 0; --i) {
+    printf("LAYER [%i]\n", i);
     Matrix ad = pre_activation[i];
     ApplyActivationDerivative(&ad, layer_[i]);
-    //weight_[i].DebugPrint();
-    //printf("delta\n");
-    //delta.DebugPrint();
-    Matrix a = weight_[i].Transpose() * delta;
-    //a.DebugPrint();
-    //ad.DebugPrint();
-    delta = RowWiseProduct(weight_[i].Transpose() * delta, ad);
-    //printf("DELTA:\n");
-    //delta.DebugPrint();
-    //post_activation[i].DebugPrint();
-    //printf("%i5\n", i);
-    weight_delta->push_back(delta * post_activation[i].Transpose());
-    //printf("%i6\n", i);
-  }
-#if 0
-  weight_delta->push_back(
-      post_activation[post_activation.size() - 2].Transpose() * delta);
-  for (s32 i = layer_.size() - 2; i >= 0; --i) {
-    Matrix& zp = pre_activation[i];
-    ApplyActivationDerivative(&zp, layer_[i]);
-    // 2x1
-    // 4x1
-    printf("Weights[%i]\n", i);
     weight_[i].DebugPrint();
-    printf("delta\n", i);
     delta.DebugPrint();
+    Matrix a = weight_[i].Transpose() * delta;
+    delta = RowWiseProduct(weight_[i].Transpose() * delta, ad);
+    //delta.DebugPrint();
+    weight_delta->push_back(delta * post_activation[i].Transpose());
   }
-#endif
   std::reverse(weight_delta->begin(), weight_delta->end());
 }
 
