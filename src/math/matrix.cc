@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <functional>
 #include <vector>
 
 #include "type.cc"
@@ -58,6 +59,8 @@ struct Matrix {
   u32 idx(u32 i, u32 j) const;
 
   r32 val(u32 i, u32 j) const;
+
+  void ApplyToRows(const std::function<void(const std::vector<r32*>& v)>& func);
 
   std::vector<r32> data;
   u32 rows = 0;
@@ -225,6 +228,17 @@ u32 Matrix::idx(u32 i, u32 j) const {
 
 r32 Matrix::val(u32 i, u32 j) const {
   return data[idx(i, j)];
+}
+
+void Matrix::ApplyToRows(const std::function<void(const std::vector<r32*>& v)>& func) {
+  for (u32 i = 0; i < rows; ++i) {
+    std::vector<r32*> values;
+    values.reserve(cols);
+    for (u32 j = 0; j < cols; ++j) {
+      values.push_back(&data[idx(i, j)]);
+    }
+    func(values);
+  }
 }
 
 Matrix HadamardProduct(const Matrix& a, const Matrix& b) {
