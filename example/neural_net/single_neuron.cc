@@ -17,15 +17,41 @@ r32 Predict(r32 x, r32 w, r32 b) {
 }
 
 r32 Cost(r32 ytrue, r32 ypredict) {
+  // Dividing by 2 simply makes the derivative easier to calculate due to the
+  // square term being brought down to cancel with the denominator.
   return ((ytrue - ypredict) * (ytrue - ypredict)) / 2.f;
 }
 
+// (ytrue - sigmoid(x * w + b))^2 / 2
+// (d/dw)(ytrue - sigmoid(x * w + b)^2 / 2
+// ((ytrue - sigmoid(x * w + b)) * d/dw(ytrue - sigmoid(x * w + b)))
+// ((ytrue - sigmoid(x * w + b)) * (0 - sigmoid_prime(x * w + b) * x))
+// Let:
+// z = x * w + b
+// a = sigmoid(x * w + b)
+// a = sigmoid(z)
+// ((ytrue - a) * -sigmoid_prime(z) * x)
+// Multiply through by -
+// ((-ytrue + a) * sigmoid_prime(z) * x)
+// (a - ytrue) * sigmoid_prime(z) * x
 r32 CostDerivative_W(r32 ytrue, r32 x, r32 w, r32 b) {
   r32 a = Predict(x, w, b);
   r32 z = x * w + b;
   return (a - ytrue) * SigmoidPrime(z) * x;
 }
 
+// (ytrue - sigmoid(x * w + b))^2 / 2
+// (d/db)(ytrue - sigmoid(x * w + b)^2 / 2
+// ((ytrue - sigmoid(x * w + b)) * d/db(ytrue - sigmoid(x * w + b)))
+// ((ytrue - sigmoid(x * w + b)) * (0 - sigmoid_prime(x * w + b) * 1))
+// Let:
+// z = x * w + b
+// a = sigmoid(x * w + b)
+// a = sigmoid(z)
+// ((ytrue - a) * -sigmoid_prime(z))
+// Multiply through by -
+// ((-ytrue + a) * sigmoid_prime(z))
+// (a - ytrue) * sigmoid_prime(z)
 r32 CostDerivative_b(r32 ytrue, r32 x, r32 w, r32 b) {
   r32 a = Predict(x, w, b);
   r32 z = x * w + b;
