@@ -1,7 +1,6 @@
 #include "math/math.cc"
 
 #include <cstdio>
-#include <cmath>
 
 r32 Sigmoid(r32 x) {
   return (1.f / (1.f + exp(-x)));
