@@ -18,7 +18,7 @@ else
   # O0 takes about half a second off the compile time.
 fi
 
-# If more than one argument, and build succeeded
+# If more than one argument, and build succeeded.
 if [ $? -eq 0 -a $# -gt 1 ]; then
   # pop the first argument
   shift
